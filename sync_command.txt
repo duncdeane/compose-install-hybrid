@@ -1,0 +1,1 @@
+deck sync --workspace default --headers "kong-admin-token:kong" --kong-addr http://api.kong.lan:8001 --tls-skip-verify
