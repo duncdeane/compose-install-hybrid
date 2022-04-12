@@ -104,6 +104,7 @@ services:
       KONG_PORTAL_IS_LEGACY: "off"
       KONG_PORTAL_GUI_PROTOCOL: ${KONG_PORTAL_GUI_PROTOCOL:-http}
       KONG_PORTAL_GUI_HOST: ${KONG_PORTAL_GUI_HOST:-localhost:8003} 
+      KONG_PORTAL_API_URI: ${KONG_PORTAL_GUI_HOST:-localhost:8004}
     ports:
       - "8001:8001/tcp"
       - "8002:8002/tcp"
@@ -122,7 +123,7 @@ services:
   
   kong-dp:
     image: ${KONG_IMAGE:-kong:latest}
-    scale: 1
+    container_name: ${DP_CONTAINER_NAME:-kong-dp}
     user: ${KONG_USER:-kong}
     depends_on:
       kong-cp:
@@ -140,7 +141,6 @@ services:
       KONG_CLUSTER_CERT: /tmp/ssl/customcerts/hybrid/cluster.crt
       KONG_CLUSTER_CERT_KEY: /tmp/ssl/customcerts/hybrid/cluster.key
       KONG_LUA_SSL_TRUSTED_CERTIFICATE: /tmp/ssl/customcerts/hybrid/cluster.crt
-      KONG_PROXY_LISTEN: "on"
       KONG_CLUSTER_CONTROL_PLANE: kong-cp1:8005
       KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp1:8006
       #Database configuration
