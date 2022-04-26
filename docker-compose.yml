@@ -22,7 +22,7 @@ services:
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PG_PASSWORD: kong
-      KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      #KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
     networks:
       - kong-net
     restart: on-failure
@@ -55,9 +55,11 @@ services:
         condition: service_healthy
     volumes: 
       - ./ssl-certs:/tmp/ssl/customcerts  
+      - ./kgo:/tmp/license
     environment:    
       #General configuration
-      KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      #KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      KONG_LICENSE_PATH: "/tmp/license/demo-license.trueability.json"
       KONG_ENFORCE_RBAC: ${KONG_ENFORCE_RBAC:-off}
       #Control Plane configuration
       KONG_ROLE: control_plane
@@ -132,7 +134,7 @@ services:
       - ./ssl-certs:/tmp/ssl/customcerts  
     environment:    
       #General configuration
-      KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      #KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
       KONG_TRUSTED_IPS: "0.0.0.0/0"
       KONG_REAL_IP_HEADER: "X-Forwarded-For"
       KONG_REAL_IP_RECURSIVE: "on"
@@ -141,8 +143,8 @@ services:
       KONG_CLUSTER_CERT: /tmp/ssl/customcerts/hybrid/cluster.crt
       KONG_CLUSTER_CERT_KEY: /tmp/ssl/customcerts/hybrid/cluster.key
       KONG_LUA_SSL_TRUSTED_CERTIFICATE: /tmp/ssl/customcerts/hybrid/cluster.crt
-      KONG_CLUSTER_CONTROL_PLANE: kong-cp1:8005
-      KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp1:8006
+      KONG_CLUSTER_CONTROL_PLANE: kong-cp:8005
+      KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp:8006
       #Database configuration
       KONG_DATABASE: "off"
       #Logging configuration
@@ -188,10 +190,28 @@ services:
     networks:
       - kong-net
 
-  httpbin:
+  deck:
+    networks:
+      - kong-net
+    image: kong/deck:v1.11.0
+    container_name: deck
+    volumes:
+        - ./deck:/tmp/deck
+    environment:
+        DECK_ANALYTICS: "off"
+        DECK_KONG_ADDR: "http://kong-cp:8001"
+    depends_on:
+      kong-cp:
+        condition: service_healthy
+      kong-dp:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "/usr/local/bin/deck sync -s /tmp/deck/setup/26-kga-pmcqa-env-setup-deck.yaml;
+            /usr/local/bin/deck sync -s /tmp/deck/setup/03-kga-pbta-setup-deck.yaml;"
+  
+  httpbin.local:
     image: "kennethreitz/httpbin"
-    container_name: httpbin
-    hostname: httpbin
+    container_name: httpbin.local
     networks:
       - kong-net
 #    ports:
