@@ -58,8 +58,8 @@ services:
       - ./kgo:/tmp/license
     environment:    
       #General configuration
-      #KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
-      KONG_LICENSE_PATH: "/tmp/license/demo-license.trueability.json"
+      KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      #KONG_LICENSE_PATH: "/tmp/license/demo-license.trueability.json"
       KONG_ENFORCE_RBAC: ${KONG_ENFORCE_RBAC:-off}
       #Control Plane configuration
       KONG_ROLE: control_plane
@@ -207,7 +207,9 @@ services:
         condition: service_healthy
     entrypoint: >
       sh -c "/usr/local/bin/deck sync -s /tmp/deck/setup/26-kga-pmcqa-env-setup-deck.yaml;
-            /usr/local/bin/deck sync -s /tmp/deck/setup/03-kga-pbta-setup-deck.yaml;"
+            /usr/local/bin/deck sync -s /tmp/deck/setup/01-02-kga-pbta-setup-deck.yaml;
+            /usr/local/bin/deck sync -s /tmp/deck/setup/03-kga-pbta-setup-deck.yaml;
+            /usr/local/bin/deck sync -s /tmp/deck/setup/04-kga-pbta-setup-deck.yaml;"
   
   httpbin.local:
     image: "kennethreitz/httpbin"

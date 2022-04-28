@@ -11,7 +11,7 @@ services:
   retries: 5
   routes:
   - headers:
-      x-send-custom-headers:
+      x-send-headers:
       - "true"
     https_redirect_status_code: 426
     name: mockbin_route1
@@ -23,7 +23,7 @@ services:
         add:
           body: []
           headers:
-          - x-custom-greeting:hello-from-kong
+          - x-custom-header:hello-from-kong
           querystring: []
         append:
           body: []
@@ -70,7 +70,7 @@ services:
     plugins:
     - config:
         echo_downstream: true
-        generator: uuid#counter
+        generator: uuid
         header_name: Kong-Request-ID
       enabled: true
       name: correlation-id
