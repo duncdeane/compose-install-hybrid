@@ -3,7 +3,7 @@ _workspace: WorkspaceA
 services:
 - connect_timeout: 60000
   host: httpbin.org
-  name: mocking_service
+  name: httpbin_service
   path: /anything
   plugins:
   - config:
@@ -42,7 +42,7 @@ services:
   - hosts:
     - localhost
     https_redirect_status_code: 426
-    name: mocking_route
+    name: httpbin_route
     path_handling: v0
     paths:
     - /mock

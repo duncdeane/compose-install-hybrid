@@ -206,11 +206,12 @@ services:
       kong-dp:
         condition: service_healthy
     entrypoint: >
-      sh -c "/usr/local/bin/deck sync -s /tmp/deck/setup/26-kga-pmcqa-env-setup-deck.yaml;
+      sh -c "/usr/local/bin/deck sync -s /tmp/deck/setup/26-kga-pmcqa-setup-deck.yaml;
             /usr/local/bin/deck sync -s /tmp/deck/setup/01-02-kga-pbta-setup-deck.yaml;
             /usr/local/bin/deck sync -s /tmp/deck/setup/03-kga-pbta-setup-deck.yaml;
-            /usr/local/bin/deck sync -s /tmp/deck/setup/04-kga-pbta-setup-deck.yaml;"
-  
+            /usr/local/bin/deck sync -s /tmp/deck/setup/04-kga-pbta-setup-deck.yaml;
+            /usr/local/bin/deck sync -s /tmp/deck/setup/05-kga-pbta-setup-deck.yaml;"
+      
   httpbin.local:
     image: "kennethreitz/httpbin"
     container_name: httpbin.local
