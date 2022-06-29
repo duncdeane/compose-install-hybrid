@@ -7,3 +7,6 @@ if [[ $uuid =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[
 else
     echo "false"
 fi
+
+
+http POST ":8001/licenses" payload=@kgo/demo-license.trueability.json --ignore-stdin
