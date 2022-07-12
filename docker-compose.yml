@@ -53,14 +53,12 @@ services:
       db:
         condition: service_healthy
     volumes:
-      # - /usr/local/kong/logs:/usr/local/kong/logs
+      - ./logs:/var/log/kong
       - ./ssl-certs:/usr/local/kong/ssl
       - ./kgo:/usr/local/kong/license
     environment:
       #KONG_LICENSE_PATH: ${KONG_LICENSE_PATH}
-      KONG_LICENSE_PATH: "/usr/local/kong/license/license.json"
       KONG_ROLE: control_plane
-      KONG_PROXY_LISTEN: "off"
       KONG_CLUSTER_CERT: /usr/local/kong/ssl/hybrid/cluster.crt
       KONG_CLUSTER_CERT_KEY: /usr/local/kong/ssl/hybrid/cluster.key
       KONG_CLUSTER_DATA_PLANE_PURGE_DELAY: 600
@@ -77,16 +75,17 @@ services:
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong
       KONG_PG_MAX_CONCURRENT_QUERIES: 5
-      KONG_ADMIN_ACCESS_LOG: /usr/local/kong/logs/admin_access.log
-      KONG_ADMIN_ERROR_LOG: /usr/local/kong/logs/error_access.log
-      KONG_ADMIN_GUI_ACCESS_LOG: /usr/local/kong/logs/admingui_access.log
-      KONG_ADMIN_GUI_ERROR_LOG: /usr/local/kong/logs/admingui_error.log
-      KONG_PORTAL_API_ACCESS_LOG: /usr/local/kong/logs/portalapi_access.log
-      KONG_PORTAL_API_ERROR_LOG: /usr/local/kong/logs/portalapi_error.log
-      KONG_PORTAL_GUI_ACCESS_LOG: /usr/local/kong/logs/portalgui_access.log
-      KONG_PORTAL_GUI_ERROR_LOG: /usr/local/kong/logs/portalgui_error.log
-      KONG_STATUS_ACCESS_LOG: /usr/local/kong/logs/status_access.log
-      KONG_STATUS_ERROR_LOG: /usr/local/kong/logs/status_error.log
+      KONG_ADMIN_ACCESS_LOG: /var/log/kong/admin_access.log
+      KONG_ADMIN_ERROR_LOG: /var/log/kong/error_access.log
+      KONG_ADMIN_GUI_ACCESS_LOG: /var/log/kong/admingui_access.log
+      KONG_ADMIN_GUI_ERROR_LOG: /var/log/kong/admingui_error.log
+      KONG_PORTAL_API_ACCESS_LOG: /var/log/kong/portalapi_access.log
+      KONG_PORTAL_API_ERROR_LOG: /var/log/kong/portalapi_error.log
+      KONG_PORTAL_GUI_ACCESS_LOG: /var/log/kong/portalgui_access.log
+      KONG_PORTAL_GUI_ERROR_LOG: /var/log/kong/portalgui_error.log
+      KONG_STATUS_ACCESS_LOG: /var/log/kong/status_access.log
+      KONG_STATUS_ERROR_LOG: /var/log/kong/status_error.log
+      KONG_LOG_LEVEL: "debug"
       KONG_STATUS_SSL_CERT_KEY: "/usr/local/kong/ssl/wildcard.key"
       KONG_STATUS_SSL_CERT: "/usr/local/kong/ssl/wildcard.pem"
       KONG_ANONYMOUS_REPORTS: "off"
@@ -147,9 +146,8 @@ services:
         condition: service_healthy
     volumes:
       - ./ssl-certs:/usr/local/kong/ssl
-      # - /usr/local/kong/logs:/usr/local/kong/logs
+      - ./logs:/var/log/kong
     environment:
-      KONG_LICENSE_PATH: ${KONG_LICENSE_PATH}
       KONG_ROLE: "data_plane"
       KONG_CLUSTER_CERT: "/usr/local/kong/ssl/hybrid/cluster.crt"
       KONG_CLUSTER_CERT_KEY: "/usr/local/kong/ssl/hybrid/cluster.key"
@@ -159,8 +157,9 @@ services:
       KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 http2 ssl"
       KONG_STREAM_LISTEN: "0.0.0.0:5555, 0.0.0.0:5556 ssl reuseport backlog=65536"
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
-      KONG_PROXY_ACCESS_LOG: "/usr/local/kong/logs/proxy_access.log"
-      KONG_PROXY_ERROR_LOG: "/usr/local/kong/logs/proxy_error.log"
+      KONG_PROXY_ACCESS_LOG: "/var/log/kong/proxy_access.log"
+      KONG_PROXY_ERROR_LOG: "/var/log/kong/proxy_error.log"
+      KONG_LOG_LEVEL: "debug"
       KONG_DATABASE: "off"
       KONG_ANONYMOUS_REPORTS: "off"
       KONG_VITALS: "on"
@@ -216,9 +215,8 @@ services:
     depends_on:
       kong-cp:
         condition: service_healthy
-      kong-dp:
-        condition: service_healthy
     entrypoint: ["sh","/tmp/shared/deck/deck_script.sh"]
+
   httpbin.local:
     networks:
       - kong-edu-net

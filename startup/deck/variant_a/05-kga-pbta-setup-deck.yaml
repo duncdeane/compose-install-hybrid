@@ -1,0 +1,195 @@
+_format_version: "1.1"
+_workspace: WorkspaceD
+consumers:
+- acls:
+  - group: groupB
+  - group: groupA
+  custom_id: Carl
+  keyauth_credentials:
+  - key: carl-key
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  username: Carl
+- acls:
+  - group: groupB
+    tags:
+    - KGA-Exam-Task-05
+  - group: groupA
+  custom_id: Jane
+  keyauth_credentials:
+  - key: jane-key
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  username: Jane
+- acls:
+  - group: groupA
+    tags:
+    - KGA-Exam-Task-05
+  custom_id: John
+  keyauth_credentials:
+  - key: john-key
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  username: John
+- acls:
+  - group: groupA
+  - group: groupB
+    tags:
+    - KGA-Exam-Task-05
+  custom_id: Laura
+  keyauth_credentials:
+  - key: laura-key
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  username: Laura
+plugins:
+- config:
+    anonymous: null
+    hide_credentials: false
+    key_in_body: false
+    key_in_header: true
+    key_in_query: true
+    key_names:
+    - apikey
+    run_on_preflight: true
+  enabled: true
+  name: key-auth
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  tags:
+  - KGA-Exam-Task-05
+services:
+- connect_timeout: 60000
+  host: mockbin.org
+  name: ServiceA
+  path: /bin/cb38aaf0-7c5c-4741-ac7e-340610425cba
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: RouteA
+    path_handling: v0
+    paths:
+    - /route-a
+    plugins:
+    - config:
+        allow:
+        - groupA
+        deny: null
+        hide_groups_header: false
+      enabled: true
+      name: acl
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-05
+    preserve_host: false
+    protocols:
+    - http
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: mockbin.org
+  name: ServiceB
+  path: /bin/b703c0a4-fa3d-4d4f-86d9-7c63cb0a56bb
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: RouteB
+    path_handling: v0
+    paths:
+    - /route-b
+    plugins:
+    - config:
+        allow:
+        - groupB
+        deny: null
+        hide_groups_header: false
+      enabled: true
+      name: acl
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-05
+    preserve_host: false
+    protocols:
+    - http
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: mockbin.org
+  name: ServiceC
+  path: /bin/fde4e41a-987c-4a50-897b-9831ef796dd1
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: RouteC
+    path_handling: v0
+    paths:
+    - /route-c
+    plugins:
+    - config:
+        allow:
+        - groupC
+        deny: null
+        hide_groups_header: false
+      enabled: true
+      name: acl
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-05
+    preserve_host: false
+    protocols:
+    - http
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  write_timeout: 60000

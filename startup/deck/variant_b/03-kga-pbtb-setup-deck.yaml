@@ -1,0 +1,83 @@
+_format_version: "1.1"
+_workspace: WorkspaceC
+consumers:
+- keyauth_credentials:
+  - key: jsonconsumer-key
+    tags:
+    - KGA-Exam-Task-03
+  tags:
+  - KGA-Exam-Task-03
+  username: jsonconsumer
+- acls:
+  - group: xmlgroup
+    tags:
+    - KGA-Exam-Task-03
+  keyauth_credentials:
+  - key: xmlconsumer-key
+    tags:
+    - KGA-Exam-Task-03
+  tags:
+  - KGA-Exam-Task-03
+  username: xmlconsumer
+services:
+- connect_timeout: 60000
+  host: httpbin.local
+  name: httpbin_service
+  path: /xml
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: httpbin_route
+    path_handling: v0
+    paths:
+    - /bin
+    plugins:
+    - config:
+        allow:
+        - xmlgroup
+        - jsongroup
+        deny: null
+        hide_groups_header: false
+      enabled: true
+      name: acl
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-03
+    - config:
+        anonymous: null
+        hide_credentials: false
+        key_in_body: false
+        key_in_header: true
+        key_in_query: true
+        key_names:
+        - apikey
+        run_on_preflight: true
+      enabled: true
+      name: key-auth
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-03
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-03
+  tags:
+  - KGA-Exam-Task-03
+  write_timeout: 60000

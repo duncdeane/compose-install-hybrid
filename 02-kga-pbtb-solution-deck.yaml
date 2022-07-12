@@ -1,0 +1,71 @@
+_format_version: "1.1"
+_workspace: WorkspaceB
+consumers:
+- basicauth_credentials:
+  - password: 376c5ca027684094371f398abbdb88a56b8c80a8
+    username: jane
+  keyauth_credentials:
+  - key: JaneKey
+  tags:
+  - KGA-Exam-Task-02
+  username: Jane
+services:
+- connect_timeout: 60000
+  host: mockbin.local
+  name: mockbin_service
+  path: /request
+  plugins:
+  - config:
+      anonymous: null
+      hide_credentials: false
+      key_in_body: false
+      key_in_header: true
+      key_in_query: true
+      key_names:
+      - apikey
+      run_on_preflight: true
+    enabled: false
+    name: key-auth
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+    tags:
+    - KGA-Exam-Task-02
+  port: 8080
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: mockbin_route
+    path_handling: v0
+    paths:
+    - /mockbin/routeb
+    plugins:
+    - config:
+        anonymous: null
+        hide_credentials: false
+      enabled: false
+      name: basic-auth
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-02
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-02
+  tags:
+  - KGA-Exam-Task-02
+  write_timeout: 60000

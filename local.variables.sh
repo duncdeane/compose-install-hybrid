@@ -8,4 +8,5 @@ export KONG_PORTAL_API_URL="http://localhost:8004"
 export KONG_PROXY_URI="http://localhost:8000"
 export KONG_GW_NAME="localhost"
 export KONG_LICENSE_PATH="/srv/shared/license/demo-license.trueability.json"
+export KEYCLOAK_URI="http://keycloak:8080"
 export KONG_ADMIN_TOKEN=mytoken
