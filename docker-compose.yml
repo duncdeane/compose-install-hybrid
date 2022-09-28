@@ -166,6 +166,12 @@ services:
       KONG_SSL_CERT_KEY: "/usr/local/kong/ssl/wildcard.key"
       KONG_SSL_CERT: "/usr/local/kong/ssl/wildcard.pem"
       KONG_NGINX_WORKER_PROCESSES: 1
+      KONG_TRACING: "on"
+      KONG_TRACING_WRITING_STRATEGY: "file"
+      KONG_TRACING_TYPES: "all"
+      KONG_TRACING_TIME_THRESHOLD: 0
+      KONG_TRACING_WRITE_ENDPOINT: /var/log/kong/granular_tracing.log
+      KONG_TRACING_DEBUG_HEADER: X-Trace
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -186,7 +192,7 @@ services:
     volumes:
     - ./keycloak:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/realms/master"]
+      test: ["CMD", "curl", "-f", "http://keycloak:8080/auth/realms/master"]
       interval: 30s
       timeout: 30s
       retries: 3
@@ -196,8 +202,8 @@ services:
     environment:
       DB_VENDOR: H2
       KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      KEYCLOAK_IMPORT: "/data/kong_realm_template.json"
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_IMPORT: "/data/kong_realm_template3.json"
       PROXY_ADDRESS_FORWARDING: "true"
 
 
@@ -239,3 +245,10 @@ services:
     restart: on-failure
     ports:
     - "8888:8080/tcp"
+
+  redis:
+    networks:
+      - kong-edu-net
+    container_name: redis
+    hostname: redis
+    image: redis:latest  

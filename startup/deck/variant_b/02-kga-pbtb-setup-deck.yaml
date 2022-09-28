@@ -42,7 +42,7 @@ services:
     name: mockbin_route
     path_handling: v0
     paths:
-    - /routeb
+    - /mockbin
     plugins:
     - config:
         anonymous: null

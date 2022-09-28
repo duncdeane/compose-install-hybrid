@@ -6,7 +6,7 @@ echo "Remove existing instance of Kong"
 docker compose down
 
 echo "Start Containers"
-docker compose up -d db kong-cp kong-migrations kong-dp keycloak httpbin.local mockbin.local
+docker compose up -d db kong-cp kong-migrations kong-dp keycloak httpbin.local mockbin.local redis
 
 echo "Apply License"
 http POST :8001/licenses payload=@kgo/license.json Kong-Admin-Token:mytoken --ignore-stdin

@@ -2,47 +2,46 @@ _format_version: "1.1"
 _workspace: WorkspaceE
 services:
 - connect_timeout: 60000
-  host: mockbin
-  name: kgca-oidc-service
+  enabled: true
+  host: mockbin.local
+  name: mockbin_service
   path: /request
   port: 8080
   protocol: http
   read_timeout: 60000
   retries: 5
-  write_timeout: 60000
   routes:
-  - name: kgca-oidc-route
+  - https_redirect_status_code: 426
+    name: mockbin_route
+    path_handling: v0
     paths:
     - /oidc
-    path_handling: v0
-    preserve_host: false
-    protocols:
-    - http
-    - https
-    regex_priority: 0
-    strip_path: true
-    https_redirect_status_code: 426
-    request_buffering: true
-    response_buffering: true
     plugins:
-    - name: openid-connect
-      config:
+    - config:
+        allow:
+        - exam_
+        deny: null
+        hide_groups_header: false
+      enabled: true
+      name: acl
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+      tags:
+      - KGA-Exam-Task-05
+    - config:
         anonymous: null
         audience: null
         audience_claim:
         - aud
         audience_required: null
         auth_methods:
-        - password
-        - client_credentials
-        - authorization_code
         - bearer
-        - introspection
-        - userinfo
-        - kong_oauth2
-        - refresh_token
-        - session
-        authenticated_groups_claim: null
+        authenticated_groups_claim:
+        - realm_access
+        - roles
         authorization_cookie_domain: null
         authorization_cookie_httponly: true
         authorization_cookie_lifetime: 600
@@ -63,7 +62,7 @@ services:
         cache_introspection: true
         cache_token_exchange: true
         cache_tokens: true
-        cache_tokens_salt: QXzSoE4mJzXE7I8Lvb81wz7klRWw7IaE
+        cache_tokens_salt: gGg0pzUfQz2u8LW731BbMkHKOPywKa1K
         cache_ttl: 3600
         cache_ttl_max: null
         cache_ttl_min: null
@@ -140,7 +139,8 @@ services:
         introspection_post_args_names: null
         introspection_post_args_values: null
         issuer: http://keycloak:8080/auth/realms/kong/.well-known/openid-configuration
-        issuers_allowed: null
+        issuers_allowed:
+        - http://localhost:8080/auth/realms/kong
         jwt_session_claim: sid
         jwt_session_cookie: null
         keepalive: true
@@ -269,8 +269,24 @@ services:
         verify_parameters: false
         verify_signature: true
       enabled: true
+      name: openid-connect
       protocols:
       - grpc
       - grpcs
       - http
       - https
+      tags:
+      - KGA-Exam-Task-05
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+    tags:
+    - KGA-Exam-Task-05
+  tags:
+  - KGA-Exam-Task-05
+  write_timeout: 60000
