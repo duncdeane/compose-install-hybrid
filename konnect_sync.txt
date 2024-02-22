@@ -1,0 +1,4 @@
+deck sync --konnect-addr https://us.api.konghq.com \
+--konnect-control-plane-name default \
+--konnect-token-file ./token \
+-s kong.yaml

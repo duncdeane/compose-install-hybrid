@@ -4,15 +4,15 @@ volumes:
   kong_data: {}
 
 networks:
-  kong-net:
-    name: ${NETWORK_NAME:-kong-net}
+  kong-edu-net:
+    name: kong-edu-net
     driver: bridge
 
 services:
 
   kong-migrations-bootstrap:
     image: ${KONG_IMAGE:-kong:latest}
-    container_name: ${MIGRATIONS_CONTAINER_NAME:-kong-migrations}
+    container_name: kong-bootstrap
     command: kong migrations bootstrap
     depends_on:
       - db
@@ -23,32 +23,31 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PG_PASSWORD: kong
       KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+      KONG_PASSWORD: mytoken
     networks:
-      - kong-net
+      - kong-edu-net
     restart: on-failure
   
-  # kong-migrations:
-  #   image: ${KONG_IMAGE:-kong:latest}
-  #   container_name: ${MIGRATIONS_CONTAINER_NAME:-kong-migrations}
-  #   command: kong migrations up && kong migrations finish
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     KONG_DATABASE: postgres
-  #     KONG_PG_HOST: db
-  #     KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-  #     KONG_PG_USER: ${KONG_PG_USER:-kong}
-  #     KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
-  #     KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
-  #   secrets:
-  #     - kong_postgres_password
-  #   networks:
-  #     - kong-net
-  #   restart: on-failure
+  kong-migrations:
+    image: ${KONG_IMAGE:-kong:latest}
+    container_name: kong-migrations
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      - db
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: db
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: kong
+      KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
+    networks:
+      - kong-edu-net
+    restart: on-failure
 
   kong-cp:
     image: ${KONG_IMAGE:-kong:latest}
-    container_name: ${CP_CONTAINER_NAME:-kong-cp}
+    container_name: kong-cp
     user: ${KONG_USER:-kong}
     depends_on:
       db:
@@ -58,7 +57,9 @@ services:
     environment:    
       #General configuration
       KONG_LICENSE_DATA: ${KONG_LICENSE_DATA}
-      KONG_ENFORCE_RBAC: ${KONG_ENFORCE_RBAC:-off}
+      KONG_ENFORCE_RBAC: "on"
+      KONG_ADMIN_GUI_AUTH: "basic-auth"
+      KONG_ADMIN_GUI_SESSION_CONF: "{ \"cookie_name\": \"manager-session\", \"secret\": \"this_is_my_other_secret\", \"storage\": \"kong\", \"cookie_secure\":false, \"cookie_lifetime\":36000}"
       #Control Plane configuration
       KONG_ROLE: control_plane
       KONG_CLUSTER_CERT: /tmp/ssl/customcerts/hybrid/cluster.crt
@@ -100,7 +101,7 @@ services:
       KONG_ADMIN_GUI_URL: ${KONG_ADMIN_GUI_URL:-http://localhost:8002}    
       
       #Portal configuration
-      KONG_PORTAL: ${KONG_PORTAL:-"on"}
+      KONG_PORTAL: "on"
       KONG_PORTAL_IS_LEGACY: "off"
       KONG_PORTAL_GUI_PROTOCOL: ${KONG_PORTAL_GUI_PROTOCOL:-http}
       KONG_PORTAL_GUI_HOST: ${KONG_PORTAL_GUI_HOST:-localhost:8003} 
@@ -112,7 +113,7 @@ services:
       - "8005:8005/tcp"
       - "8006:8006/tcp"
     networks:
-      - kong-net
+      - kong-edu-net
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -122,7 +123,7 @@ services:
   
   kong-dp:
     image: ${KONG_IMAGE:-kong:latest}
-    scale: 1
+    container_name: kong-dp
     user: ${KONG_USER:-kong}
     depends_on:
       kong-cp:
@@ -140,27 +141,25 @@ services:
       KONG_CLUSTER_CERT: /tmp/ssl/customcerts/hybrid/cluster.crt
       KONG_CLUSTER_CERT_KEY: /tmp/ssl/customcerts/hybrid/cluster.key
       KONG_LUA_SSL_TRUSTED_CERTIFICATE: /tmp/ssl/customcerts/hybrid/cluster.crt
-      KONG_PROXY_LISTEN: "on"
-      KONG_CLUSTER_CONTROL_PLANE: kong-cp1:8005
-      KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp1:8006
+      KONG_CLUSTER_CONTROL_PLANE: kong-cp:8005
+      KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp:8006
       #Database configuration
       KONG_DATABASE: "off"
       #Logging configuration
       KONG_LOG_LEVEL: debug
+      KONG_VITALS: "on"
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ANONYMOUS_REPORTS: "off"
       #Listener configration
-      KONG_PROXY_LISTEN: ${KONG_PROXY_LISTEN:-0.0.0.0:8000}    
-      KONG_ADMIN_LISTEN: ${KONG_ADMIN_LISTEN:-0.0.0.0:8001} 
-      KONG_STATUS_LISTEN: ${KONG_STATUS_LISTEN:-0.0.0.0:8100}
+      KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 http2 ssl reuseport backlog=65536"
     ports:
       - "8000:8000/tcp"
 
     networks:
-      - kong-net
+      - kong-edu-net
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -170,7 +169,7 @@ services:
   
   db:
     image: ${PG_DB_IMAGE:-postgres:13.1} 
-    container_name: ${DB_CONTAINER_NAME:-kong-db}
+    container_name: db
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -186,13 +185,39 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - kong-net
+      - kong-edu-net
 
-  httpbin:
-    image: "kennethreitz/httpbin"
-    container_name: httpbin
-    hostname: httpbin
+  httpbin.local:
     networks:
-      - kong-net
-#    ports:
-#      - "80:80/tcp"
+      - kong-edu-net
+    image: "kennethreitz/httpbin"
+    container_name: httpbin.local
+    ports:
+      - "8889:80/tcp"
+
+#   httpbin:
+#     image: "kennethreitz/httpbin"
+#     container_name: httpbin
+#     hostname: httpbin
+#     networks:
+#       - kong-edu-net
+# #    ports:
+# #      - "80:80/tcp"
+
+
+  # mockbin.local:
+  #   networks:
+  #   - kong-edu-net
+  #   image: mashape/mockbin:latest
+  #   platform: linux/arm64/v8
+  #   container_name: mockbin.local
+  #   hostname: mockbin.local
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "exit 0"]
+  #     interval: 30s
+  #     timeout: 30s
+  #     retries: 3        
+  #   restart: on-failure
+  #   ports:
+  #   - "8888:8080/tcp"
+
